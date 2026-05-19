@@ -31,7 +31,7 @@ def main():
     print("🧠 1. Yeni post üçün mövzu ideyası düşünülür...")
     try:
         idea_response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-5.4-mini",
             messages=[{"role": "user", "content": f"Sən '{PAGE_TOPIC}' mövzusunda İnstagram səhifəsi işlədirsən. Mənə elə indicə paylaşmaq üçün maraqlı, diqqətçəkən, tək bir cümləlik İDEYA (mövzu başlığı) ver. Sual vermə, yalnız ideyanı yaz."}]
         )
         post_idea = idea_response.choices[0].message.content.strip()
@@ -47,7 +47,7 @@ def main():
             meta_prompt = f.read()
             
         dalle_prompt_response = client.chat.completions.create(
-            model="gpt-4o", # Meta-promptunuzu ən yaxşı bu model başa düşür
+            model="gpt-5.4", # Sizin 2026 hesabınızdakı ən güclü model
             messages=[
                 {"role": "system", "content": meta_prompt},
                 {"role": "user", "content": f"Topic Idea: {post_idea}. Generate the final image prompt now."}
@@ -59,12 +59,12 @@ def main():
         print(f"❌ OpenAI Xətası (Prompt Generasiyası): {e}")
         return
         
-    # 3. DALL-E 3 ilə Şəkil Yaratmaq
-    print("🖼️ 3. DALL-E 3 vizualı çəkir (Bu 10-15 saniyə çəkə bilər)...")
+    # 3. GPT Image 2 ilə Şəkil Yaratmaq
+    print("🖼️ 3. GPT Image 2 vizualı çəkir (Bu 10-15 saniyə çəkə bilər)...")
     try:
         image_response = client.images.generate(
-            model="dall-e-2",
-            prompt=final_dalle_prompt[:1000], # DALL-E 2 maksimum 1000 simvol qəbul edir
+            model="gpt-image-2",
+            prompt=final_dalle_prompt[:4000], # GPT Image 2 üçün
             size="1024x1024",
             n=1,
         )
@@ -97,7 +97,7 @@ def main():
     
     try:
         caption_response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-5.4-mini",
             messages=[{"role": "user", "content": caption_prompt}]
         )
         caption = caption_response.choices[0].message.content.strip()
