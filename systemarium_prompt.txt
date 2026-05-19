@@ -1,241 +1,117 @@
-Update the current image generation prompt system for the Instagram automation project “Sistemarium”.
+Create a unique Instagram post visual for the account “Sistemarium”.
 
-The account automatically generates and posts AI/design/technology-focused Instagram visuals every hour. The visual must never feel repetitive. Every post must be redesigned from scratch based on the given topic, headline, or content variable.
+The system will receive a dynamic topic/title each time. Based on that topic, generate a completely new human-focused conceptual editorial poster. Nothing should be fixed or repetitive. Every post must rethink the visual concept, composition, typography, character, colors, layout, and mood from scratch according to the given topic.
 
-CORE GOAL:
-Generate a vertical Instagram post visual that feels like an editorial design magazine cover, conceptual social media poster, or high-level creative director mockup.
+CORE CONTEXT:
+Sistemarium is an Azerbaijani Instagram page about AI systems, automation, future technologies, creative workflows, smart tools, and how people build with technology. The visual should feel like a premium conceptual magazine/poster mockup, not a generic AI graphic.
 
-The post must be:
-- human-focused
-- conceptual
-- visually different every time
-- topic-specific
-- editorial
-- modern
-- slightly experimental
-- premium design-oriented
-- suitable for an AI / design / technology Instagram page named “Sistemarium”
+STYLE DIRECTION:
+Use the attached references only as high-level inspiration:
+- bold editorial typography
+- human-centered conceptual photography
+- Swiss design grid architecture
+- experimental but readable layouts
+- strong visual hierarchy
+- creative poster energy
+- layered design elements
+- expressive but controlled composition
 
-IMPORTANT:
-Nothing in the visual style should be permanently fixed.
-Do not reuse the same layout, pose, background, typography, color palette, camera angle, or graphic system.
-Every render must reinterpret the topic from zero.
+Do not copy any reference directly. Create a fresh original visual every time.
 
-VISUAL DIRECTION:
-Create a human-centered conceptual composition inspired by modern creative studio posters, editorial magazine covers, Swiss design systems, design culture memes, AI culture, tech creativity, and visual experimentation.
+VISUAL PRINCIPLES:
+The image must include one main human character connected conceptually to the given topic. The character must look Azerbaijani / Caucasian, with a realistic local facial appearance. Each post should feature a different person, different styling, different camera angle, different environment, and different composition.
 
-The image should feel like a designed poster, not a random AI photo.
+The visual should feel smart, conceptual, premium, slightly experimental, and Instagram-worthy. It should look like a designed editorial cover or creative campaign poster.
 
-Each post should include:
-1. One main human subject or human-like creative character
-2. A strong conceptual scene connected to the topic
-3. Bold but limited typography
-4. A short header/title text based on the topic
-5. Optional small editorial labels, issue-style details, UI fragments, folders, stickers, notes, interface elements, cursor shapes, grid markers, abstract symbols, or design-tool-inspired overlays
-6. Strong composition with clear hierarchy
-7. A premium poster-like layout suitable for Instagram
+TEXT RULES:
+All visible text on the image must be in Azerbaijani.
+Do not use English text, except optional handle: @sistemarium.
+Use very little text.
+There should be:
+1. One strong Azerbaijani header related to the topic
+2. One short supporting line
+3. Optional small micro-copy or footer detail
 
-TYPOGRAPHY RULES:
-Typography must change every time.
-Use different combinations such as:
-- bold grotesk sans serif
-- condensed display fonts
-- pixel type
-- Swiss-style clean typography
-- retro serif
-- italic editorial typography
-- script accent typography
-- oversized headline typography
-- small caption typography
-- distorted or layered type when appropriate
+The text must be generated according to the topic. Do not repeat the same headline structure every time.
 
-Do not overcrowd the image with text.
-Use one main headline and optionally 1–3 small supporting microtexts.
-The headline must be short, catchy, and related to the topic.
+TYPOGRAPHY:
+Typography must change from post to post.
+Use bold, creative, editorial typography.
+Mix font styles when useful: grotesk, serif, condensed, pixel, italic, handwritten, mono, display fonts.
+Maintain high-level Swiss design discipline: clear hierarchy, alignment, balance, spacing, grid logic, and strong composition.
 
-Text should feel intentionally designed, not simply placed.
-Text may overlap with the subject if it improves the composition.
-Use strong alignment, grid logic, contrast, spacing, and visual hierarchy.
+COMPOSITION:
+Each visual must be different:
+- different camera angle
+- different crop
+- different scale of the person
+- different text placement
+- different color palette
+- different graphic elements
+- different background logic
+- different typography treatment
 
-TEXT GENERATION:
-For each topic, generate a new short headline or subject text.
-The headline should feel like an editorial title, not a generic AI caption.
-
-Examples of tone:
-- “DESIGN THINKS BACK”
-- “AI HAS TASTE ISSUES”
-- “PROMPT WITH INTENT”
-- “THE SYSTEM IS WATCHING”
-- “CREATIVE ERROR”
-- “NO DESIGN IS RANDOM”
-- “AUTOMATION WITH SOUL”
-- “PIXEL PERFECT CHAOS”
-- “THE ALGORITHM DREAMS”
-- “MAKE THE MACHINE FEEL HUMAN”
-
-Do not use the same example text unless it perfectly fits the topic.
-Always create fresh headline text from the actual input topic.
-
-COMPOSITION STYLE:
-Use strong poster composition principles:
-- Swiss grid structure
-- intentional asymmetry
-- bold negative space
-- editorial cropping
-- strong foreground/background separation
-- clear focal point
-- layered typography
-- visual rhythm
-- contrast between human emotion and digital/AI elements
-
-Camera angles should vary:
-- low angle desk perspective
-- fisheye close-up
-- top-down creative workspace
-- ultra-close portrait
-- wide editorial studio shot
-- mirror selfie concept
-- distorted webcam perspective
-- product/editorial hybrid scene
-- cinematic office moment
-- surreal tech room composition
-
-The subject should not always look directly at the camera.
-Use different emotions and poses:
-- focused
-- confused
-- confident
-- tired creative director energy
-- overthinking
-- calm strategist
-- ironic designer face
-- working at desk
-- holding coffee
-- interacting with laptop
-- surrounded by interface elements
-- looking at floating digital objects
-- designing, coding, prompting, testing, automating
-
-TOPIC INTERPRETATION:
-For every incoming topic, analyze the meaning first.
-Then create a unique visual metaphor.
-
-Example:
-If the topic is about automation, show a human creative director surrounded by scheduled posts, folders, clocks, prompt panels, and robotic interface hints.
-
-If the topic is about AI image generation, show a designer controlling visual fragments, broken pixels, generated faces, prompt cards, and surreal camera layers.
-
-If the topic is about design strategy, show a serious creative person in a conceptual office with grids, sticky notes, visual systems, and bold editorial text.
-
-If the topic is about branding, show identity systems, typography sheets, color cards, logo fragments, and human decision-making energy.
-
-If the topic is about GitHub, Railway, deployment, or systems, show creative coding culture mixed with editorial poster design, file trees, deploy arrows, terminal windows, and human focus.
-
-STYLE MIX:
-Combine:
-- editorial magazine cover
-- modern Instagram design poster
-- Swiss graphic design
-- creative studio campaign
-- conceptual AI culture
-- tech-startup visual language
-- slightly ironic design meme
-- high-end social media mockup
-
-The image should feel current, internet-native, and design-aware.
-
-COLOR RULES:
-Color palette must change based on the topic.
-Use premium, intentional color systems.
-Possible directions:
-- muted green + red accent
-- blue + cream + black
-- orange coffee tone + white typography
-- grayscale + neon green
-- deep black + electric blue
-- soft beige + sharp red
-- cyber purple + off-white
-- pastel tech colors
-- brutalist black and white
-- retro editorial colors
-
-Do not use the same color palette repeatedly.
-Avoid cheap neon overload unless the topic requires it.
+Possible styles may include:
+- close-up portrait
+- wide-angle conceptual scene
+- desk/workflow scene
+- fisheye editorial portrait
+- magazine cover style
+- screen/interface-inspired poster
+- minimal Swiss grid poster
+- bold experimental social post
+- analog/digital collage
+- AI automation conceptual scene
 
 GRAPHIC ELEMENTS:
-Use supporting graphic elements only when they improve the concept.
-Possible elements:
-- grid lines
-- cursor arrows
-- folder icons
-- browser windows
-- terminal snippets with unreadable pseudo-code
-- floating prompt cards
-- UI panels
-- timestamp / issue date
-- mock file labels
-- abstract AI symbols
-- sticky notes
-- stars, arrows, badges, stickers
-- pixel artifacts
-- scan lines
-- glass reflections
-- camera distortion
-- printed-paper textures
-- halftone texture
-- grain
-- subtle motion blur
+Use topic-relevant visual metaphors such as:
+- abstract UI fragments
+- code-like details
+- automation flows
+- digital cards
+- grids
+- folders
+- interface snippets
+- neural patterns
+- system diagrams
+- arrows
+- data layers
+- icons
+- device screens
+- creative tools
+- futuristic objects
 
-All graphic elements must feel designed and integrated.
+Keep these elements elegant and purposeful. Do not overload the design.
 
-BRAND:
-The Instagram page is named “Sistemarium”.
-The visual may include “SISTEMARIUM” as a small editorial brand mark, but not always in the same place.
-Use it subtly, like a magazine label, studio signature, or footer mark.
-Do not make it look like a corporate logo lockup every time.
+COLOR:
+Use a fresh color palette every time.
+The palette should match the topic and mood.
+Use strong contrast and one or two memorable accent colors when appropriate.
+Avoid generic blue-purple AI cliché unless the topic specifically needs it.
 
-TEXT SAFETY:
-All visible text must be clean and readable if it is main headline text.
-Small decorative interface text may be pseudo-text or abstract.
-Do not generate long paragraphs.
-Do not create random unreadable main headlines.
-Do not include real brand logos unless provided.
-Do not include copyrighted character references.
+QUALITY:
+The final image must look like a high-end editorial Instagram post, not a stock image, not a simple infographic, not a basic tech poster, and not a template.
 
-IMAGE QUALITY:
-Vertical 4:5 Instagram post.
-High-resolution editorial render.
-Sharp typography.
-Premium lighting.
-Intentional grain or texture when appropriate.
-No messy AI artifacts.
-No deformed hands or faces.
-No duplicated faces.
-No extra fingers.
-No broken glasses, eyes, or typography.
-No cheap stock-photo look.
-No generic “AI robot” cliché unless the topic specifically needs it.
-No overused glowing brain cliché.
-No boring corporate illustration style.
+IMPORTANT CONSTRAINTS:
+- Azerbaijani text only
+- Human-focused visual
+- Azerbaijani / Caucasian-looking character
+- Different face and styling every time
+- Different layout every time
+- No repeated template
+- No generic AI robot clichés
+- No overloaded text
+- No English headlines
+- No corporate stock photo feeling
+- Preserve strong design principles
+- Preserve Swiss grid logic
+- Make it conceptual, premium, and visually interesting
 
-FINAL IMAGE FEEL:
-The final output should look like a high-level creative director designed an Instagram poster for an AI/design/technology culture page.
+OUTPUT FORMAT:
+Vertical Instagram post.
+Aspect ratio: 4:5.
+High-resolution.
+Editorial poster quality.
 
-It should be visually scroll-stopping, conceptual, human, smart, and different from the previous post.
-
-For every generation:
-- understand the topic
-- create a fresh concept
-- create a fresh human-centered visual
-- create fresh typography
-- create fresh layout
-- create fresh colors
-- keep high-level design principles
-- keep Swiss/editorial structure
-- avoid repetition completely
-
-OUTPUT:
-Generate only the final image prompt to be sent to GPT Image 2 (DALL-E).
-Do not explain the prompt.
-Do not reuse previous visual systems.
-Do not make the post template fixed.
+TASK:
+Based on the given topic, create one unique conceptual Instagram post visual for Sistemarium.
