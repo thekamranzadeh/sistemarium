@@ -63,10 +63,9 @@ def main():
     print("🖼️ 3. DALL-E 3 vizualı çəkir (Bu 10-15 saniyə çəkə bilər)...")
     try:
         image_response = client.images.generate(
-            model="dall-e-3",
-            prompt=final_dalle_prompt[:4000], # Sizin qəliblə yaradılan əmr
+            model="dall-e-2",
+            prompt=final_dalle_prompt[:1000], # DALL-E 2 maksimum 1000 simvol qəbul edir
             size="1024x1024",
-            quality="standard",
             n=1,
         )
         image_url = image_response.data[0].url
