@@ -40,12 +40,31 @@ def main():
         print(f"❌ OpenAI Xətası (İdeya): {e}")
         return
     
-    # 2. Şəkil Yaratmaq (DALL-E 3)
-    print("🎨 2. OpenAI DALL-E 3 ilə vizual yaradılır (Bu 10-15 saniyə çəkə bilər)...")
+    # 2. Şəkil üçün Xüsusi Prompt Yaratmaq (Sizin göndərdiyiniz Meta-Prompt əsasında)
+    print("🎨 2. Sizin Meta-Prompt əsasında unikal DALL-E promptu hazırlanır...")
+    try:
+        with open("systemarium_prompt.txt", "r", encoding="utf-8") as f:
+            meta_prompt = f.read()
+            
+        dalle_prompt_response = client.chat.completions.create(
+            model="gpt-4o", # Meta-promptunuzu ən yaxşı bu model başa düşür
+            messages=[
+                {"role": "system", "content": meta_prompt},
+                {"role": "user", "content": f"Topic Idea: {post_idea}. Generate the final image prompt now."}
+            ]
+        )
+        final_dalle_prompt = dalle_prompt_response.choices[0].message.content.strip()
+        print(f"✨ DALL-E üçün göndərilən əmr:\n{final_dalle_prompt}\n")
+    except Exception as e:
+        print(f"❌ OpenAI Xətası (Prompt Generasiyası): {e}")
+        return
+        
+    # 3. DALL-E 3 ilə Şəkil Yaratmaq
+    print("🖼️ 3. DALL-E 3 vizualı çəkir (Bu 10-15 saniyə çəkə bilər)...")
     try:
         image_response = client.images.generate(
             model="dall-e-3",
-            prompt=f"Aesthetic, high-quality, cinematic Instagram post visual about: '{post_idea}'. NO TEXT OR LETTERS IN THE IMAGE. Extremely beautiful, modern and atmospheric.",
+            prompt=final_dalle_prompt[:4000], # Sizin qəliblə yaradılan əmr
             size="1024x1024",
             quality="standard",
             n=1,
@@ -134,7 +153,7 @@ def main():
     if os.path.exists("session.json"):
         os.remove("session.json")
         
-    print("🚀 BÜTÜN PROSES QÜSURSUZ TAMAMLANDI! Növbəti post 4 saat sonra olacaq.")
+    print("🚀 BÜTÜN PROSES QÜSURSUZ TAMAMLANDI! Növbəti post 1 saat sonra olacaq.")
 
 if __name__ == "__main__":
     main()
