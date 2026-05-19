@@ -1,28 +1,91 @@
 import os
 import base64
+import time
+import random
 from datetime import datetime
 from github import Github
 from github.GithubException import GithubException
 from instagrapi import Client
+from instagrapi.exceptions import ChallengeRequired, LoginRequired
 from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# --- AYARLAR ---
 IG_USERNAME = os.getenv("IG_USERNAME")
 IG_PASSWORD = os.getenv("IG_PASSWORD")
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 GITHUB_REPO = os.getenv("GITHUB_REPO")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# --- MODELLƏR ---
-TEXT_MODEL = "gpt-5.5-2026-04-23"     # ideya və caption üçün
-SMART_MODEL = "gpt-5.5-2026-04-23"    # şəkil promptu üçün
-IMAGE_MODEL = "gpt-image-1"           # şəkil generasiyası
+TEXT_MODEL = "gpt-5.5-2026-04-23"
+SMART_MODEL = "gpt-5.5-2026-04-23"
+IMAGE_MODEL = "gpt-image-1"
 
-# --- MÖVZUNUZ ---
-PAGE_TOPIC = "AI və onun insan psixologiyasına təsiri haqqında növbəti 10 il üçün nələr baş verəcəyi ilə bağlı düşüncələr."
+PAGE_TOPIC = "AI və onun insan psixologiyasına təsiri haqqında növbəti 10 il üçün düşüncələr."
+
+
+def setup_instagram_client():
+    """İnstagram klientini təhlükəsiz parametrlərlə qurur."""
+    cl = Client()
+    
+    # Mobil cihazı təqlid etmək
+    cl.set_device({
+        "app_version": "269.0.0.18.75",
+        "android_version": 26,
+        "android_release": "8.0.0",
+        "dpi": "480dpi",
+        "resolution": "1080x1920",
+        "manufacturer": "samsung",
+        "device": "SM-G930F",
+        "model": "herolte",
+        "cpu": "samsungexynos8890",
+        "version_code": "314665256",
+    })
+    cl.set_user_agent(
+        "Instagram 269.0.0.18.75 Android (26/8.0.0; 480dpi; 1080x1920; samsung; SM-G930F; herolte; samsungexynos8890; en_US; 314665256)"
+    )
+    
+    # Random delay − robotvari davranışı azaldır
+    cl.delay_range = [2, 5]
+    
+    return cl
+
+
+def login_to_instagram(cl, repo):
+    """Sessiya ilə təhlükəsiz giriş. Challenge gəlsə xəta atır."""
+    session_existed = False
+    
+    try:
+        # Sessiyanı GitHub-dan yükləməyə çalış
+        session_file = repo.get_contents("session.json")
+        with open("session.json", "wb") as f:
+            f.write(session_file.decoded_content)
+        cl.load_settings("session.json")
+        
+        # Sessiyanı sınamaq − challenge olmadan
+        try:
+            cl.get_timeline_feed()
+            print("✅ Mövcud sessiya keçərlidir.")
+            session_existed = True
+            return session_existed
+        except LoginRequired:
+            print("⚠️ Sessiya köhnəlib, yenidən giriş edilir...")
+            cl.login(IG_USERNAME, IG_PASSWORD, relogin=True)
+            session_existed = True
+            return session_existed
+            
+    except GithubException:
+        # Sessiya yoxdur − ilk giriş
+        print("⚠️ Sessiya tapılmadı. İlk giriş edilir...")
+        print("⚠️ DİQQƏT: İlk giriş üçün manual edib sessiyanı saxlamaq daha təhlükəsizdir!")
+        cl.login(IG_USERNAME, IG_PASSWORD)
+        cl.dump_settings("session.json")
+        with open("session.json", "r") as f:
+            session_data = f.read()
+        repo.create_file("session.json", "Save IG session", session_data)
+        print("✅ Yeni sessiya yaradıldı və GitHub-a saxlandı.")
+        return session_existed
 
 
 def main():
@@ -34,25 +97,25 @@ def main():
 
     client = OpenAI(api_key=OPENAI_API_KEY)
 
-    # 1. Mövzu İdeyası
-    print("🧠 1. Yeni post üçün mövzu ideyası düşünülür...")
+    # 1. İdeya
+    print("🧠 1. Mövzu ideyası düşünülür...")
     try:
         idea_response = client.chat.completions.create(
             model=TEXT_MODEL,
             messages=[{
                 "role": "user",
-                "content": f"Sən '{PAGE_TOPIC}' mövzusunda İnstagram səhifəsi işlədirsən. Mənə elə indicə paylaşmaq üçün maraqlı, diqqətçəkən, tək bir cümləlik İDEYA (mövzu başlığı) ver. Sual vermə, yalnız ideyanı yaz."
+                "content": f"Sən '{PAGE_TOPIC}' mövzusunda İnstagram səhifəsi işlədirsən. Mənə paylaşmaq üçün maraqlı, tək bir cümləlik İDEYA ver. Yalnız ideyanı yaz."
             }],
             reasoning_effort="low"
         )
         post_idea = idea_response.choices[0].message.content.strip()
-        print(f"💡 İdeya tapıldı: {post_idea}")
+        print(f"💡 İdeya: {post_idea}")
     except Exception as e:
         print(f"❌ OpenAI Xətası (İdeya): {e}")
         return
 
-    # 2. Şəkil üçün Prompt
-    print("🎨 2. Meta-Prompt əsasında unikal şəkil promptu hazırlanır...")
+    # 2. Şəkil promptu
+    print("🎨 2. Şəkil promptu hazırlanır...")
     try:
         with open("systemarium_prompt.txt", "r", encoding="utf-8") as f:
             meta_prompt = f.read()
@@ -66,16 +129,16 @@ def main():
             reasoning_effort="medium"
         )
         final_image_prompt = dalle_prompt_response.choices[0].message.content.strip()
-        print(f"✨ Şəkil üçün göndərilən əmr:\n{final_image_prompt}\n")
+        print(f"✨ Şəkil promptu:\n{final_image_prompt}\n")
     except FileNotFoundError:
-        print("❌ systemarium_prompt.txt faylı tapılmadı!")
+        print("❌ systemarium_prompt.txt tapılmadı!")
         return
     except Exception as e:
-        print(f"❌ OpenAI Xətası (Prompt Generasiyası): {e}")
+        print(f"❌ OpenAI Xətası (Prompt): {e}")
         return
 
-    # 3. Şəkil Yaratmaq
-    print("🖼️ 3. Şəkil çəkilir (Bu 10-15 saniyə çəkə bilər)...")
+    # 3. Şəkil
+    print("🖼️ 3. Şəkil yaradılır...")
     local_img_name = None
     img_data = None
     try:
@@ -94,24 +157,22 @@ def main():
         with open(local_img_name, "wb") as fh:
             fh.write(img_data)
 
-        print(f"🖼️ Şəkil generasiya edildi: {local_img_name}")
+        print(f"🖼️ Şəkil yükləndi: {local_img_name}")
     except Exception as e:
-        print(f"❌ Şəkil yaradılarkən xəta: {e}")
+        print(f"❌ Şəkil xətası: {e}")
         return
 
-    # 4. Caption (Mətn)
-    print("📝 4. Şəkilə uyğun Caption yazılır...")
+    # 4. Caption
+    print("📝 4. Caption yazılır...")
     caption_prompt = f"""Sən '{PAGE_TOPIC}' mövzusunda paylaşımlar edirsən.
-Aşağıdakı ideya üçün mükəmməl bir İnstagram mətni (caption) yaz.
 İdeya: {post_idea}
 
 Qaydalar:
-- 3 qısa abzas olsun.
-- 1-ci abzas hook (diqqətçəkən sual/cümlə).
-- 2-ci abzas qısa izah.
-- 3-cü abzas call-to-action (rəyə çağırış).
-- Maksimum 50-70 söz. 3-4 emoji. Sonda 5 populyar hashtag.
-- Dil: Qrammatik düzgün və axıcı Azərbaycan dili."""
+- 3 qısa abzas
+- 1-ci: hook, 2-ci: izah, 3-cü: call-to-action
+- Maksimum 50-70 söz, 3-4 emoji
+- Sonda 5 populyar hashtag
+- Düzgün Azərbaycan dili"""
 
     try:
         caption_response = client.chat.completions.create(
@@ -120,43 +181,31 @@ Qaydalar:
             reasoning_effort="low"
         )
         caption = caption_response.choices[0].message.content.strip()
-        print(f"📜 Hazır Mətn:\n{caption}\n")
+        print(f"📜 Caption:\n{caption}\n")
     except Exception as e:
         print(f"❌ OpenAI Xətası (Caption): {e}")
         cleanup(local_img_name)
         return
 
-    # 5. İnstagram-a Bağlanmaq
+    # 5. İnstagram
     print("📱 5. İnstagram-a bağlanır...")
-    cl = Client()
+    cl = setup_instagram_client()
     g = Github(GITHUB_TOKEN)
     repo = g.get_repo(GITHUB_REPO)
 
-    session_existed = False
     try:
-        # Sessiyanı GitHub-dan yükləməyə çalışırıq
-        try:
-            session_file = repo.get_contents("session.json")
-            with open("session.json", "wb") as f:
-                f.write(session_file.decoded_content)
-            cl.load_settings("session.json")
-            cl.login(IG_USERNAME, IG_PASSWORD)
-            session_existed = True
-            print("✅ Mövcud sessiya yükləndi (Təhlükəsiz giriş).")
-        except GithubException:
-            # Sessiya yoxdursa, sıfırdan giriş
-            cl.login(IG_USERNAME, IG_PASSWORD)
-            cl.dump_settings("session.json")
-            with open("session.json", "r") as f:
-                session_data = f.read()
-            repo.create_file("session.json", "Save IG session", session_data)
-            print("✅ Yeni sessiya yaradıldı və GitHub-a saxlanıldı.")
-
-        print("✅ Hesaba daxil olundu. Paylaşılır...")
+        session_existed = login_to_instagram(cl, repo)
+        
+        # Random gözləmə − insani davranışı təqlid etmək
+        wait = random.randint(5, 15)
+        print(f"⏱️ {wait} saniyə gözlənilir (təhlükəsizlik üçün)...")
+        time.sleep(wait)
+        
+        print("✅ Paylaşılır...")
         cl.photo_upload(local_img_name, caption)
-        print("🎉 POST İNSTAGRAMDA UĞURLA PAYLAŞILDI!")
+        print("🎉 POST UĞURLA PAYLAŞILDI!")
 
-        # Sessiyanı yeniləmək (varsa update)
+        # Sessiyanı yenilə
         if session_existed:
             try:
                 cl.dump_settings("session.json")
@@ -168,22 +217,27 @@ Qaydalar:
             except Exception as e:
                 print(f"⚠️ Sessiya yenilənmədi: {e}")
 
+    except ChallengeRequired:
+        print("❌ İnstagram CHALLENGE tələb edir!")
+        print("📱 Telefonda hesaba daxil olun, bildirişdə 'Bu mən idim' seçin.")
+        print("⏰ 24 saat heç bir bot kodu işlətməyin.")
+        cleanup(local_img_name)
+        return
     except Exception as e:
         print(f"❌ İnstagram Xətası: {e}")
         cleanup(local_img_name)
         return
 
-    # 6. Şəkli GitHub-da Arxivləmək
-    print("🔄 6. Şəkil GitHub arxivinə yüklənir...")
+    # 6. Arxiv
+    print("🔄 6. Şəkil arxivlənir...")
     try:
-        repo.create_file(f"images/{local_img_name}", f"Avtomatik post: {post_idea}", img_data)
-        print("✅ Şəkil GitHub-da arxivləşdirildi.")
+        repo.create_file(f"images/{local_img_name}", f"Post: {post_idea}", img_data)
+        print("✅ Arxivləndi.")
     except Exception as e:
-        print(f"⚠️ GitHub-a yükləmədə problem (amma post paylaşıldı): {e}")
+        print(f"⚠️ Arxivləmə problemi: {e}")
 
-    # Təmizlik
     cleanup(local_img_name)
-    print("🚀 BÜTÜN PROSES QÜSURSUZ TAMAMLANDI! Növbəti post 1 saat sonra olacaq.")
+    print("🚀 PROSES TAMAMLANDI!")
 
 
 def cleanup(img_name):
