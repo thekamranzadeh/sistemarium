@@ -1,5 +1,6 @@
 import os
 import requests
+import base64
 from datetime import datetime
 from github import Github
 from instagrapi import Client
@@ -67,19 +68,22 @@ def main():
             prompt=final_dalle_prompt[:4000], # GPT Image 2 üçün
             size="1024x1024",
             n=1,
+            response_format="b64_json" # Şəkli URL kimi deyil, birbaşa fayl kimi alırıq
         )
-        image_url = image_response.data[0].url
+        b64_data = image_response.data[0].b64_json
+        
+        # Şəkli lokal olaraq yükləyirik
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        local_img_name = f"post_{timestamp}.jpg"
+        
+        img_data = base64.b64decode(b64_data)
+        with open(local_img_name, "wb") as fh:
+            fh.write(img_data)
+            
+        print("🖼️ Şəkil generasiya edildi və yükləndi.")
     except Exception as e:
         print(f"❌ Şəkil yaradılarkən xəta: {e}")
         return
-
-    # Şəkli lokal olaraq yükləyirik
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    local_img_name = f"post_{timestamp}.jpg"
-    img_data = requests.get(image_url).content
-    with open(local_img_name, 'wb') as handler:
-        handler.write(img_data)
-    print("🖼️ Şəkil generasiya edildi və yükləndi.")
 
     # 3. Caption (Mətn) Yaratmaq
     print("📝 3. Şəkilə uyğun Caption yazılır...")
