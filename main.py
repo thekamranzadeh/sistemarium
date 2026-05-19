@@ -3,10 +3,10 @@ import base64
 import time
 import random
 from datetime import datetime
-from github import Github
+from github import Github, Auth
 from github.GithubException import GithubException
 from instagrapi import Client
-from instagrapi.exceptions import ChallengeRequired, LoginRequired
+from instagrapi.exceptions import ChallengeRequired, LoginRequired, PleaseWaitFewMinutes
 from openai import OpenAI
 from dotenv import load_dotenv
 
@@ -28,8 +28,6 @@ PAGE_TOPIC = "AI və onun insan psixologiyasına təsiri haqqında növbəti 10 
 def setup_instagram_client():
     """İnstagram klientini təhlükəsiz parametrlərlə qurur."""
     cl = Client()
-    
-    # Mobil cihazı təqlid etmək
     cl.set_device({
         "app_version": "269.0.0.18.75",
         "android_version": 26,
@@ -45,47 +43,57 @@ def setup_instagram_client():
     cl.set_user_agent(
         "Instagram 269.0.0.18.75 Android (26/8.0.0; 480dpi; 1080x1920; samsung; SM-G930F; herolte; samsungexynos8890; en_US; 314665256)"
     )
-    
-    # Random delay − robotvari davranışı azaldır
     cl.delay_range = [2, 5]
-    
     return cl
 
 
-def login_to_instagram(cl, repo):
-    """Sessiya ilə təhlükəsiz giriş. Challenge gəlsə xəta atır."""
-    session_existed = False
+def save_session_to_github(cl, repo):
+    """Sessiyanı GitHub-a saxlayır və ya yeniləyir."""
+    cl.dump_settings("session.json")
+    with open("session.json", "r") as f:
+        session_data = f.read()
     
     try:
-        # Sessiyanı GitHub-dan yükləməyə çalış
+        # Mövcuddursa yenilə
+        contents = repo.get_contents("session.json")
+        repo.update_file("session.json", "Update IG session", session_data, contents.sha)
+        print("✅ Sessiya GitHub-da yeniləndi.")
+    except GithubException:
+        # Yoxdursa yarat
+        repo.create_file("session.json", "Save IG session", session_data)
+        print("✅ Sessiya GitHub-da yaradıldı.")
+
+
+def login_to_instagram(cl, repo):
+    """Sessiya ilə təhlükəsiz giriş."""
+    try:
+        # Sessiyanı GitHub-dan yüklə
         session_file = repo.get_contents("session.json")
         with open("session.json", "wb") as f:
             f.write(session_file.decoded_content)
         cl.load_settings("session.json")
-        
-        # Sessiyanı sınamaq − challenge olmadan
+        cl.login(IG_USERNAME, IG_PASSWORD)  # settings ilə login
+
+        # Sessiyanı sınamaq
         try:
             cl.get_timeline_feed()
             print("✅ Mövcud sessiya keçərlidir.")
-            session_existed = True
-            return session_existed
-        except LoginRequired:
-            print("⚠️ Sessiya köhnəlib, yenidən giriş edilir...")
-            cl.login(IG_USERNAME, IG_PASSWORD, relogin=True)
-            session_existed = True
-            return session_existed
-            
+            return
+        except (LoginRequired, PleaseWaitFewMinutes):
+            print("⚠️ Sessiya köhnəlib, yenidən giriş...")
+            old_session = cl.get_settings()
+            cl.set_settings({})
+            cl.set_uuids(old_session["uuids"])
+            cl.login(IG_USERNAME, IG_PASSWORD)
+            save_session_to_github(cl, repo)
+            return
+
     except GithubException:
-        # Sessiya yoxdur − ilk giriş
-        print("⚠️ Sessiya tapılmadı. İlk giriş edilir...")
-        print("⚠️ DİQQƏT: İlk giriş üçün manual edib sessiyanı saxlamaq daha təhlükəsizdir!")
+        # Sessiya yoxdur — ilk giriş
+        print("⚠️ GitHub-da sessiya tapılmadı. İlk giriş edilir...")
+        print("⚠️ DİQQƏT: Datacenter IP-dən ilk giriş riskli ola bilər!")
         cl.login(IG_USERNAME, IG_PASSWORD)
-        cl.dump_settings("session.json")
-        with open("session.json", "r") as f:
-            session_data = f.read()
-        repo.create_file("session.json", "Save IG session", session_data)
-        print("✅ Yeni sessiya yaradıldı və GitHub-a saxlandı.")
-        return session_existed
+        save_session_to_github(cl, repo)
 
 
 def main():
@@ -190,37 +198,30 @@ Qaydalar:
     # 5. İnstagram
     print("📱 5. İnstagram-a bağlanır...")
     cl = setup_instagram_client()
-    g = Github(GITHUB_TOKEN)
+    auth = Auth.Token(GITHUB_TOKEN)
+    g = Github(auth=auth)
     repo = g.get_repo(GITHUB_REPO)
 
     try:
-        session_existed = login_to_instagram(cl, repo)
-        
-        # Random gözləmə − insani davranışı təqlid etmək
+        login_to_instagram(cl, repo)
+
         wait = random.randint(5, 15)
-        print(f"⏱️ {wait} saniyə gözlənilir (təhlükəsizlik üçün)...")
+        print(f"⏱️ {wait} saniyə gözlənilir...")
         time.sleep(wait)
-        
+
         print("✅ Paylaşılır...")
         cl.photo_upload(local_img_name, caption)
         print("🎉 POST UĞURLA PAYLAŞILDI!")
 
-        # Sessiyanı yenilə
-        if session_existed:
-            try:
-                cl.dump_settings("session.json")
-                with open("session.json", "r") as f:
-                    new_session = f.read()
-                contents = repo.get_contents("session.json")
-                repo.update_file("session.json", "Update IG session", new_session, contents.sha)
-                print("✅ Sessiya GitHub-da yeniləndi.")
-            except Exception as e:
-                print(f"⚠️ Sessiya yenilənmədi: {e}")
+        # Sessiyanı hər uğurlu paylaşımdan sonra yenilə
+        try:
+            save_session_to_github(cl, repo)
+        except Exception as e:
+            print(f"⚠️ Sessiya yenilənmədi: {e}")
 
     except ChallengeRequired:
         print("❌ İnstagram CHALLENGE tələb edir!")
         print("📱 Telefonda hesaba daxil olun, bildirişdə 'Bu mən idim' seçin.")
-        print("⏰ 24 saat heç bir bot kodu işlətməyin.")
         cleanup(local_img_name)
         return
     except Exception as e:
@@ -241,12 +242,11 @@ Qaydalar:
 
 
 def cleanup(img_name):
+    """Yalnız şəkili silir, session.json-u toxunmuruq."""
     if img_name and os.path.exists(img_name):
         os.remove(img_name)
-    if os.path.exists("session.json"):
-        os.remove("session.json")
+    # session.json silinmir — növbəti run üçün lazım ola bilər
 
 
 if __name__ == "__main__":
     main()
-
